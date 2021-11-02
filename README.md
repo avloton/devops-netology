@@ -11,4 +11,5 @@
 - файл .terraformrc;
 - файл terraform.rc.
 
+new line
 
