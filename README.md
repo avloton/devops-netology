@@ -12,4 +12,4 @@
 - файл terraform.rc.
 
 new line
-
+new another line
