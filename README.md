@@ -71,9 +71,15 @@
 
 6. Найдите все коммиты в которых была изменена функция globalPluginDirs.
 
-`git log -G"func globalPluginDirs\(" --oneline -p --all`
+Находим файлы, в которых определена функция: `git grep "globalPluginDirs"`
 
-    8364383c3 Push plugin discovery down into command package
+Находим коммиты, в которых менялось тело функции: `git log -L :globalPluginDirs:plugins.go`
+
+    commit 78b12205587fe839f10d946ea3fdc06719decb05
+    commit 52dbf94834cb970b510f2fba853a5b49ad9b1a46
+    commit 41ab0aef7a0fe030e84018973a64135b11abcd70
+    commit 66ebff90cdfaa6938f26f908c7ebad8d547fea17
+    commit 8364383c359a6b738a436d1b7745ccdce178df47
 
 7. Кто автор функции synchronizedWriters?
 
