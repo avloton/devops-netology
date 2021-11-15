@@ -87,5 +87,9 @@
 
     Author: Martin Atkins <mart@degeneration.co.uk>
 
+Или
 
+`git log --pickaxe-regex -S"func synchronizedWriters\(" --reverse --pretty='format:%an' | head -n1`
+
+    Martin Atkins
 
