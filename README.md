@@ -566,6 +566,8 @@ node_filesystem_avail_bytes{device="/dev/mapper/vgvagrant-root",fstype="ext4",mo
 
 2. Ознакомьтесь с опциями node_exporter и выводом `/metrics` по-умолчанию. Приведите несколько опций, которые вы бы выбрали для базового мониторинга хоста по CPU, памяти, диску и сети.
 
+**Ответ:**
+
 Я бы выбрал следующие опции.
 
 Для мониторинга CPU:
@@ -602,12 +604,173 @@ node_filesystem_avail_bytes{device="/dev/mapper/vgvagrant-root",fstype="ext4",mo
     ```bash
     config.vm.network "forwarded_port", guest: 19999, host: 19999
     ```
-
     После успешной перезагрузки в браузере *на своем ПК* (не в виртуальной машине) вы должны суметь зайти на `localhost:19999`. Ознакомьтесь с метриками, которые по умолчанию собираются Netdata и с комментариями, которые даны к этим метрикам.
 
+**Ответ:**
 
+Netdata успешно запущена в Vagrant, с метриками ознакомился:
+
+![alt text](https://github.com/avloton/devops-netology/raw/main/img/netdata.png)
 
 4. Можно ли по выводу `dmesg` понять, осознает ли ОС, что загружена не на настоящем оборудовании, а на системе виртуализации?
+
+**Ответ:**
+
+```shell
+vagrant@vagrant:~$ dmesg | grep -i virt
+[    0.000000] DMI: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[    0.015495] CPU MTRRs all blank - virtualized system.
+[    0.150097] Booting paravirtualized kernel on KVM
+[  247.365533] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[  249.139613] systemd[1]: Detected virtualization oracle.
+```
+
+Судя по строке, система успешно определила, что она запущена в виртуальной среде: 
+
+```[  249.139613] systemd[1]: Detected virtualization oracle.```
+
 5. Как настроен sysctl `fs.nr_open` на системе по-умолчанию? Узнайте, что означает этот параметр. Какой другой существующий лимит не позволит достичь такого числа (`ulimit --help`)?
+
+**Ответ:**
+
+Значение в системе по умолчанию:
+```shell
+vagrant@vagrant:~$ cat /proc/sys/fs/nr_open
+1048576
+```
+Из man:
+
+```shell
+/proc/sys/fs/nr_open (since Linux 2.6.25)
+              This file imposes ceiling on the value to which the RLIMIT_NOFILE resource limit can  be  raised  (see  getrlimit(2)).
+```
+
+`/proc/sys/fs/nr_open`- этот файл накладывает ограничение на значение, до которого может быть увеличен лимит ресурсов RLIMIT_NOFILE.
+
+Таким образом, `nr_open` задает верхнюю планку, до которой может быть увеличено число открытых файловых дескрипторов пользователем.
+В свою очередь, максимальное число открытых файловых дескрипторов задается в файле `/etc/security/limits.conf`. 
+Текущее значение можно посмотреть командой:
+
+```shell
+vagrant@vagrant:~$ ulimit -n
+1024
+```
+
 6. Запустите любой долгоживущий процесс (не `ls`, который отработает мгновенно, а, например, `sleep 1h`) в отдельном неймспейсе процессов; покажите, что ваш процесс работает под PID 1 через `nsenter`. Для простоты работайте в данном задании под root (`sudo -i`). Под обычным пользователем требуются дополнительные опции (`--map-root-user`) и т.д.
+
+**Ответ:**
+
+При помощи команды `unshare` запускаем процесс в новом namespace. Параметры `--pid` и `--fork` указывают на то, что нужно сделать fork
+процесса и выделить новое пространство имен типа PID, `--mount-proc` создает новое пространство имен типа mount для procfs:
+```shell
+vagrant@vagrant:~$ sudo -i
+root@vagrant:~# unshare --pid --fork --mount-proc sleep 1h &
+[1] 1508
+```
+
+Отобразим пространства имен и находим, что PID процесса равен 1509:
+```shell
+root@vagrant:~# lsns
+        NS TYPE   NPROCS   PID USER            COMMAND
+4026531835 cgroup    123     1 root            /sbin/init
+4026531836 pid       122     1 root            /sbin/init
+4026531837 user      123     1 root            /sbin/init
+4026531838 uts       121     1 root            /sbin/init
+4026531839 ipc       123     1 root            /sbin/init
+4026531840 mnt       111     1 root            /sbin/init
+4026531860 mnt         1    33 root            kdevtmpfs
+4026531992 net       123     1 root            /sbin/init
+4026532162 mnt         1   397 root            /lib/systemd/systemd-udevd
+4026532163 uts         1   397 root            /lib/systemd/systemd-udevd
+4026532164 mnt         1   404 systemd-network /lib/systemd/systemd-networkd
+4026532183 mnt         1   568 systemd-resolve /lib/systemd/systemd-resolved
+4026532184 mnt         4   642 netdata         /usr/sbin/netdata -D
+4026532185 mnt         2  1508 root            unshare --pid --fork --mount-proc sleep 1h
+4026532186 pid         1  1509 root            sleep 1h
+4026532248 mnt         1   599 root            /usr/sbin/irqbalance --foreground
+4026532250 mnt         1   605 root            /lib/systemd/systemd-logind
+4026532251 uts         1   605 root            /lib/systemd/systemd-logind
+```
+Подключаемся ко всем пространствам имен процесса, у которого PID равен 1509:
+```shell
+root@vagrant:~# nsenter -a -t 1509
+```
+Отображаем список процессов и видим, что у процесса sleep PID равен 1:
+```shell
+root@vagrant:/# ps
+    PID TTY          TIME CMD
+      1 pts/0    00:00:00 sleep
+      2 pts/0    00:00:00 bash
+     11 pts/0    00:00:00 ps
+```
+
 7. Найдите информацию о том, что такое `:(){ :|:& };:`. Запустите эту команду в своей виртуальной машине Vagrant с Ubuntu 20.04 (**это важно, поведение в других ОС не проверялось**). Некоторое время все будет "плохо", после чего (минуты) – ОС должна стабилизироваться. Вызов `dmesg` расскажет, какой механизм помог автоматической стабилизации. Как настроен этот механизм по-умолчанию, и как изменить число процессов, которое можно создать в сессии?
+
+**Ответ:**
+
+Команда `:(){ :|:& };:` - это форк бомба, в результате которой запускается функция, которая запускает два своих экземпляра, которые
+в свою очередь запускают еще по два и т.д. Таким образом, будут создаваться новые процессы до исчерпания лимитов.
+
+Вывод dmesg показал, что сработали лимиты системы `cgroups` на уровне user.slice.
+Видимо сработали ограничения на максимальное число запущенных процессов в оболочке пользователя:
+```shell
+[ 3904.462086] cgroup: fork rejected by pids controller in /user.slice/user-1000.slice/session-3.scope
+[ 3980.003059] watchdog: BUG: soft lockup - CPU#3 stuck for 45s! [bash:7286]
+[ 3980.003230] watchdog: BUG: soft lockup - CPU#0 stuck for 45s! [bash:6465]
+[ 3980.003400] watchdog: BUG: soft lockup - CPU#1 stuck for 45s! [bash:5013]
+```
+
+Текущий лимит на максимальное число запущенных процессов для пользователя, который вошел в систему, можно посмотреть командой (стоит limit: 5012):
+```shell
+vagrant@vagrant:~$ systemctl status user-1000.slice
+● user-1000.slice - User Slice of UID 1000
+     Loaded: loaded
+    Drop-In: /usr/lib/systemd/system/user-.slice.d
+             └─10-defaults.conf
+     Active: active since Sun 2021-11-28 07:54:01 UTC; 5h 43min ago
+       Docs: man:user@.service(5)
+      Tasks: 15 (limit: 5012)
+     Memory: 74.9M
+     CGroup: /user.slice/user-1000.slice
+```
+Настройки этого лимита по умолчанию можно посмотреть командой (стоит 33% от системного ограничения):
+```shell
+vagrant@vagrant:~$ systemctl cat user-1000.slice
+
+[Unit]
+Description=User Slice of UID %j
+Documentation=man:user@.service(5)
+After=systemd-user-sessions.service
+StopWhenUnneeded=yes
+
+[Slice]
+TasksMax=33%
+```
+
+Можно переопределить лимит на количество процессов вошедшего пользователя, создав файл по пути:
+```shell
+vagrant@vagrant:~$ sudo cat /usr/lib/systemd/system/user-1000.slice.d/10-tasksmax.conf
+[Slice]
+TasksMax=100
+```
+Перезагрузим systemd для применения настроек:
+```shell
+vagrant@vagrant:~$ sudo systemctl daemon-reload
+```
+
+Лимит для пользователя изменился (limit: 100):
+```shell
+vagrant@vagrant:~$ systemctl status user-1000.slice
+● user-1000.slice - User Slice of UID 1000
+     Loaded: loaded
+    Drop-In: /usr/lib/systemd/system/user-.slice.d
+             └─10-defaults.conf
+             /usr/lib/systemd/system/user-1000.slice.d
+             └─10-tasksmax.conf
+     Active: active since Sun 2021-11-28 07:54:01 UTC; 5h 39min ago
+       Docs: man:user@.service(5)
+      Tasks: 15 (limit: 100)
+     Memory: 74.9M
+     CGroup: /user.slice/user-1000.slice
+             ├─session-3.scope
+```
