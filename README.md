@@ -775,7 +775,7 @@ vagrant@vagrant:~$ systemctl status user-1000.slice
              ├─session-3.scope
 ```
 
-# Домашнее задание к занятию "3.5. Файловые системы"
+## Домашнее задание к занятию "3.5. Файловые системы"
 
 1. Узнайте о [sparse](https://ru.wikipedia.org/wiki/%D0%A0%D0%B0%D0%B7%D1%80%D0%B5%D0%B6%D1%91%D0%BD%D0%BD%D1%8B%D0%B9_%D1%84%D0%B0%D0%B9%D0%BB) (разряженных) файлах.
 
@@ -1120,4 +1120,233 @@ root@vagrant:~# echo $?
 
 20. Погасите тестовый хост, `vagrant destroy`.
 
- 
+## Домашнее задание к занятию "3.6. Компьютерные сети, лекция 1"
+
+1. Работа c HTTP через телнет.
+- Подключитесь утилитой телнет к сайту stackoverflow.com
+`telnet stackoverflow.com 80`
+- отправьте HTTP запрос
+```bash
+GET /questions HTTP/1.0
+HOST: stackoverflow.com
+[press enter]
+[press enter]
+```
+- В ответе укажите полученный HTTP код, что он означает?
+
+**Ответ:**
+```shell
+vagrant@vagrant:~$ telnet stackoverflow.com 80
+Trying 151.101.193.69...
+Connected to stackoverflow.com.
+Escape character is '^]'.
+GET /questions HTTP/1.0
+HOST: stackoverflow.com
+
+HTTP/1.1 301 Moved Permanently
+cache-control: no-cache, no-store, must-revalidate
+location: https://stackoverflow.com/questions
+x-request-guid: 721eb2dc-5ea4-4569-8a7e-360a1d2e95a0
+feature-policy: microphone 'none'; speaker 'none'
+content-security-policy: upgrade-insecure-requests; frame-ancestors 'self' https://stackexchange.com
+Accept-Ranges: bytes
+Date: Sat, 04 Dec 2021 16:21:08 GMT
+Via: 1.1 varnish
+Connection: close
+X-Served-By: cache-fra19147-FRA
+X-Cache: MISS
+X-Cache-Hits: 0
+X-Timer: S1638634868.341439,VS0,VE92
+Vary: Fastly-SSL
+X-DNS-Prefetch-Control: off
+Set-Cookie: prov=49c01730-2416-7790-d1b7-4e59a9ec6a8d; domain=.stackoverflow.com; expires=Fri, 01-Jan-2055 00:00:00 GMT; path=/; HttpOnly
+
+Connection closed by foreign host.
+```
+
+Вернулся код `301 Moved Permanently` - это означает, что запрошенный ресурс был перемещен в новое месторасположение,
+на которое указывает `location: https://stackoverflow.com/questions`.
+
+
+2. Повторите задание 1 в браузере, используя консоль разработчика F12.
+- откройте вкладку `Network`
+- отправьте запрос http://stackoverflow.com
+- найдите первый ответ HTTP сервера, откройте вкладку `Headers`
+- укажите в ответе полученный HTTP код.
+- проверьте время загрузки страницы, какой запрос обрабатывался дольше всего?
+- приложите скриншот консоли браузера в ответ.
+
+**Ответ:**
+
+Вернулся HTTP код ответа `307 Internal Redirect`.
+
+Самый долгий запрос это `HTTP GET https://stackoverflow.com/`, который составил 548 мс.
+
+Снимок экрана с консолью браузера:
+![alt text](https://github.com/avloton/devops-netology/blob/main/img/hw_3.6_browser_console.png?raw=true)
+
+3. Какой IP адрес у вас в интернете?
+
+**Ответ:**
+
+85.208.222.242 
+
+4. Какому провайдеру принадлежит ваш IP адрес? Какой автономной системе AS? Воспользуйтесь утилитой `whois`
+
+**Ответ:**
+
+```shell
+vagrant@vagrant:~$ whois 85.208.222.242
+% This is the RIPE Database query service.
+% The objects are in RPSL format.
+%
+% The RIPE Database is subject to Terms and Conditions.
+% See http://www.ripe.net/db/support/db-terms-conditions.pdf
+
+% Note: this output has been filtered.
+%       To receive output for a database update, use the "-B" flag.
+
+% Information related to '85.208.222.0 - 85.208.223.255'
+
+% Abuse contact for '85.208.222.0 - 85.208.223.255' is 'sunegina@mail.ru'
+
+inetnum:        85.208.222.0 - 85.208.223.255
+netname:        Infrastructure-UPS
+country:        RU
+admin-c:        VL5107-RIPE
+tech-c:         VL5107-RIPE
+status:         ASSIGNED PA
+mnt-by:         mnt-ru-llcuralpromservice-1
+created:        2019-03-13T06:02:49Z
+last-modified:  2019-03-13T06:02:49Z
+source:         RIPE
+
+person:         Viktor V. Logunov
+address:        LLC "Uralpromservice"
+address:        Kushva, Sverdlovsk region
+address:        Krasnoarmeiskaya, 16a
+address:        Russian Federation
+phone:          +7 904 1613535
+nic-hdl:        VL5107-RIPE
+mnt-by:         TAGNET-MNT
+created:        2011-01-22T07:08:15Z
+last-modified:  2011-01-22T17:40:52Z
+source:         RIPE # Filtered
+
+% Information related to '85.208.220.0/22AS51012'
+
+route:          85.208.220.0/22
+origin:         AS51012
+mnt-by:         mnt-ru-llcuralpromservice-1
+created:        2019-02-27T11:22:48Z
+last-modified:  2019-02-27T11:22:48Z
+source:         RIPE
+
+% This query was served by the RIPE Database Query Service version 1.101 (WAGYU)
+```
+Из вывода команды можно понять, что ip адрес принадлежит провайдеру `LLC "Uralpromservice"`, у которого автономная система AS51012.
+
+5. Через какие сети проходит пакет, отправленный с вашего компьютера на адрес 8.8.8.8? Через какие AS? Воспользуйтесь утилитой `traceroute`
+
+**Ответ:**
+
+```shell
+vagrant@vagrant:~$ traceroute -An 8.8.8.8 -I
+traceroute to 8.8.8.8 (8.8.8.8), 30 hops max, 60 byte packets
+ 1  10.0.2.2 [*]  0.448 ms  0.258 ms  0.208 ms
+ 2  192.168.0.1 [*]  0.663 ms  0.585 ms  0.733 ms
+ 3  85.208.220.1 [AS51012]  1.204 ms  0.952 ms  0.993 ms
+ 4  10.10.11.3 [*]  3.549 ms  3.274 ms  3.369 ms
+ 5  85.208.223.246 [AS51012]  3.497 ms  3.508 ms  3.585 ms
+ 6  85.208.223.254 [AS51012]  3.348 ms  5.918 ms  4.776 ms
+ 7  95.167.75.141 [AS12389]  11.744 ms  10.596 ms  9.196 ms
+ 8  87.226.181.89 [AS12389]  33.574 ms  34.706 ms  33.558 ms
+ 9  * * *
+10  108.170.250.113 [AS15169]  49.653 ms * *
+11  * * *
+12  74.125.253.94 [AS15169]  49.452 ms  46.018 ms  45.478 ms
+13  209.85.251.63 [AS15169]  47.395 ms  48.366 ms  47.288 ms
+14  * * *
+15  * * *
+16  * * *
+17  * * *
+18  * * *
+19  * * *
+20  * * *
+21  * * *
+22  * * *
+23  8.8.8.8 [AS15169]  52.446 ms  51.243 ms *
+```
+
+6. Повторите задание 5 в утилите `mtr`. На каком участке наибольшая задержка - delay?
+
+**Ответ:**
+
+```shell
+vagrant@vagrant:~$ mtr -zn 8.8.8.8
+```
+
+```shell
+                                        My traceroute  [v0.93]
+vagrant (10.0.2.15)                                                          2021-12-04T17:28:59+0000
+Keys:  Help   Display mode   Restart statistics   Order of fields   quit
+                                                             Packets               Pings
+ Host                                                      Loss%   Snt   Last   Avg  Best  Wrst StDev
+ 1. AS???    10.0.2.2                                       0.0%    10    4.2   4.1   1.2  14.6   3.9
+ 2. AS???    192.168.0.1                                    0.0%    10    3.7   2.8   1.3   4.8   1.1
+ 3. AS51012  85.208.220.1                                   0.0%    10    4.3   4.0   2.4   6.4   1.1
+ 4. AS???    10.10.11.3                                     0.0%    10    7.3   4.9   2.5   7.6   1.8
+ 5. AS51012  85.208.223.246                                 0.0%    10    7.9   6.0   3.4   8.6   1.5
+ 6. AS51012  85.208.223.254                                10.0%    10    5.3   6.1   4.6   7.7   1.2
+ 7. AS12389  95.167.75.141                                 10.0%    10   11.6  10.8   7.8  13.1   1.9
+ 8. AS12389  87.226.181.89                                 10.0%    10   34.8  34.9  31.9  37.4   1.7
+ 9. AS12389  5.143.253.105                                 10.0%    10   35.8  35.2  33.5  36.8   1.1
+10. AS15169  108.170.250.113                               10.0%    10   40.5  36.6  33.4  40.5   2.3
+11. AS15169  142.251.49.158                                66.7%    10   46.5  47.8  46.5  50.1   2.0
+12. AS15169  74.125.253.94                                  0.0%    10   68.0  52.0  44.3  68.0   8.5
+13. AS15169  209.85.251.63                                  0.0%    10   51.8  50.5  48.9  53.1   1.5
+14. (waiting for reply)
+15. (waiting for reply)
+16. (waiting for reply)
+17. (waiting for reply)
+18. (waiting for reply)
+19. (waiting for reply)
+20. (waiting for reply)
+21. (waiting for reply)
+22. (waiting for reply)
+23. AS15169  8.8.8.8                                        0.0%     9   50.1  52.5  50.1  54.7   1.4
+```
+
+Наибольшая задержка на участке `12. AS15169  74.125.253.94` - в этом месте ping составляет 68 мс.
+
+7. Какие DNS сервера отвечают за доменное имя dns.google? Какие A записи? воспользуйтесь утилитой `dig`
+
+**Ответ:**
+
+Получаем список A записей:
+```shell
+vagrant@vagrant:~$ dig dns.google A +noall +answer
+dns.google.             38      IN      A       8.8.4.4
+dns.google.             38      IN      A       8.8.8.8
+```
+
+Получаем список DNS серверов:
+```shell
+vagrant@vagrant:~$ dig dns.google NS +noall +answer
+dns.google.             21097   IN      NS      ns1.zdns.google.
+dns.google.             21097   IN      NS      ns3.zdns.google.
+dns.google.             21097   IN      NS      ns2.zdns.google.
+dns.google.             21097   IN      NS      ns4.zdns.google.
+```
+
+8. Проверьте PTR записи для IP адресов из задания 7. Какое доменное имя привязано к IP? воспользуйтесь утилитой `dig`
+
+**Ответ:**
+```shell
+vagrant@vagrant:~$ dig -x 8.8.4.4 +noall +answer
+4.4.8.8.in-addr.arpa.   20037   IN      PTR     dns.google.
+vagrant@vagrant:~$ dig -x 8.8.8.8 +noall +answer
+8.8.8.8.in-addr.arpa.   14157   IN      PTR     dns.google.
+```
+
+К обоим IP адресам привязано доменное имя `dns.google`.
