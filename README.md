@@ -1690,3 +1690,5 @@ UNCONN            0                 0                                   127.0.0.
 5. Используя diagrams.net, создайте L3 диаграмму вашей домашней сети или любой другой сети, с которой вы работали. 
 
 **Ответ:**
+
+![alt_text](https://github.com/avloton/devops-netology/raw/main/img/network.png)
