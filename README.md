@@ -1556,3 +1556,137 @@ vagrant@vagrant:~$ sudo ip neigh flush dev eth0
 ```shell
 vagrant@vagrant:~$ sudo ip neigh del 10.0.2.3 dev eth0
 ```
+
+## Домашнее задание к занятию "3.8. Компьютерные сети, лекция 3"
+
+1. Подключитесь к публичному маршрутизатору в интернет. Найдите маршрут к вашему публичному IP
+```
+telnet route-views.routeviews.org
+Username: rviews
+show ip route x.x.x.x/32
+show bgp x.x.x.x/32
+```
+**Ответ:**
+```
+route-views>show ip route 85.208.222.242
+Routing entry for 85.208.220.0/22
+  Known via "bgp 6447", distance 20, metric 0
+  Tag 6939, type external
+  Last update from 64.71.137.241 1w2d ago
+  Routing Descriptor Blocks:
+  * 64.71.137.241, from 64.71.137.241, 1w2d ago
+      Route metric is 0, traffic share count is 1
+      AS Hops 3
+      Route tag 6939
+      MPLS label: none
+```
+```
+route-views>show bgp 85.208.222.242
+BGP routing table entry for 85.208.220.0/22, version 1388583848
+Paths: (24 available, best #24, table default)
+  Not advertised to any peer
+  Refresh Epoch 1
+  2497 12389 51012
+    202.232.0.2 from 202.232.0.2 (58.138.96.254)
+      Origin IGP, localpref 100, valid, external
+      path 7FE1502ACBB8 RPKI State not found
+      rx pathid: 0, tx pathid: 0
+  Refresh Epoch 1
+  3267 1299 12389 51012
+    194.85.40.15 from 194.85.40.15 (185.141.126.1)
+      Origin IGP, metric 0, localpref 100, valid, external
+      path 7FE127D30428 RPKI State not found
+      rx pathid: 0, tx pathid: 0
+  Refresh Epoch 1
+  20912 3257 3356 12389 51012
+    212.66.96.126 from 212.66.96.126 (212.66.96.126)
+      Origin IGP, localpref 100, valid, external
+      Community: 3257:8070 3257:30515 3257:50001 3257:53900 3257:53902 20912:65004
+      path 7FE165B8CBF8 RPKI State not found
+      rx pathid: 0, tx pathid: 0
+  Refresh Epoch 3
+  3303 12389 51012
+    217.192.89.50 from 217.192.89.50 (138.187.128.158)
+      Origin IGP, localpref 100, valid, external
+      Community: 3303:1004 3303:1006 3303:1030 3303:3056
+      path 7FE122533BB0 RPKI State not found
+      rx pathid: 0, tx pathid: 0
+```
+
+
+2. Создайте dummy0 интерфейс в Ubuntu. Добавьте несколько статических маршрутов. Проверьте таблицу маршрутизации.
+
+**Ответ:**
+Создаем несколько dummy интерфейсов:
+```shell
+vagrant@vagrant:~$ sudo modprobe -v dummy numdummies=2
+insmod /lib/modules/5.4.0-80-generic/kernel/drivers/net/dummy.ko numdummies=0 numdummies=2
+```
+Проверяем, что модуль ядра успешно подгрузился:
+```shell
+vagrant@vagrant:~$ lsmod | grep dummy
+dummy                  16384  0
+```
+Проверяем наличие dummy интерфейсов:
+```shell
+vagrant@vagrant:~$ ip -br a
+lo               UNKNOWN        127.0.0.1/8 ::1/128
+eth0             UP             10.0.2.15/24 fe80::a00:27ff:fe73:60cf/64
+dummy0           DOWN
+dummy1           DOWN
+```
+Поднимаем интерфейс dummy0:
+```shell
+vagrant@vagrant:~$ sudo ip link set dev dummy0 up
+```
+Прописываем несколько статических маршрутов:
+```shell
+vagrant@vagrant:~$ sudo ip route add 172.17.0.0/16 via 172.16.0.1
+vagrant@vagrant:~$ sudo ip route add 172.18.0.0/16 via 172.16.0.1
+```
+Проверяем таблицу маршрутизации:
+```shell
+vagrant@vagrant:~$ ip r
+default via 10.0.2.2 dev eth0 proto dhcp src 10.0.2.15 metric 100
+10.0.2.0/24 dev eth0 proto kernel scope link src 10.0.2.15
+10.0.2.2 dev eth0 proto dhcp scope link src 10.0.2.15 metric 100
+172.16.0.0/24 dev dummy0 proto kernel scope link src 172.16.0.1
+172.17.0.0/16 via 172.16.0.1 dev dummy0
+172.18.0.0/16 via 172.16.0.1 dev dummy0
+```
+
+3. Проверьте открытые TCP порты в Ubuntu, какие протоколы и приложения используют эти порты? Приведите несколько примеров.
+
+**Ответ:**
+```shell
+root@vagrant:~# ss -atnp4
+State             Recv-Q            Send-Q                        Local Address:Port                          Peer Address:Port             Process
+LISTEN            0                 4096                                0.0.0.0:111                                0.0.0.0:*                 users:(("rpcbind",pid=574,fd=4),("systemd",pid=1,fd=35))
+LISTEN            0                 4096                          127.0.0.53%lo:53                                 0.0.0.0:*                 users:(("systemd-resolve",pid=575,fd=13))
+LISTEN            0                 128                                 0.0.0.0:22                                 0.0.0.0:*                 users:(("sshd",pid=694,fd=3))
+LISTEN            0                 4096                              127.0.0.1:8125                               0.0.0.0:*                 users:(("netdata",pid=659,fd=56))
+LISTEN            0                 4096                                0.0.0.0:19999                              0.0.0.0:*                 users:(("netdata",pid=659,fd=4))
+ESTAB             0                 0                                 10.0.2.15:22                                10.0.2.2:56624             users:(("sshd",pid=1472,fd=4),("sshd",pid=1423,fd=4))
+```
+Из вывода видно, что системное приложение `systemd-resolve` слушает порт 53/tcp на адресе 127.0.0.53, который предназначен для протокола DNS.
+Приложение `sshd` слушает порт 22/tcp на всех интерфейсах.
+Установлено соединение TCP между `10.0.2.15:22` и `10.0.2.2:56624`.
+
+4. Проверьте используемые UDP сокеты в Ubuntu, какие протоколы и приложения используют эти порты?
+
+**Ответ:**
+```shell
+root@vagrant:~# ss -aunp4
+State             Recv-Q            Send-Q                          Local Address:Port                         Peer Address:Port            Process
+UNCONN            0                 0                               127.0.0.53%lo:53                                0.0.0.0:*                users:(("systemd-resolve",pid=575,fd=12))
+UNCONN            0                 0                              10.0.2.15%eth0:68                                0.0.0.0:*                users:(("systemd-network",pid=407,fd=19))
+UNCONN            0                 0                                     0.0.0.0:111                               0.0.0.0:*                users:(("rpcbind",pid=574,fd=5),("systemd",pid=1,fd=36))
+UNCONN            0                 0                                   127.0.0.1:8125                              0.0.0.0:*                users:(("netdata",pid=659,fd=54))
+```
+Из вывода видно, что системное приложение `systemd-network` слушает порт 68/udp на адресе 10.0.2.15, которое предназначено для протокола `dhcp`.
+Приложение `netdata` слушает порт 8125/udp на localhost.
+Системное приложение `systemd-resolve` слушает порт 53/udp на адресе 127.0.0.53.
+
+5. Используя diagrams.net, создайте L3 диаграмму вашей домашней сети или любой другой сети, с которой вы работали. 
+
+**Ответ:**
