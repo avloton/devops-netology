@@ -1845,11 +1845,94 @@ vagrant@vagrant:~/testssl.sh$ ./testssl.sh -U --sneaky https://testssl.sh/
  
 **Ответ:**
 
+Генерируем пару ключей RSA:
+```shell
+vagrant@vagrant:~/testssl.sh$ ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/vagrant/.ssh/id_rsa):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/vagrant/.ssh/id_rsa
+Your public key has been saved in /home/vagrant/.ssh/id_rsa.pub
+The key fingerprint is:
+SHA256:JCQmQpHVBbbdlVuVuZKWhvkEZP8x4khuxbb4Fjqa+O0 vagrant@vagrant
+The key's randomart image is:
++---[RSA 3072]----+
+|oo=.+o+.  .+. ..o|
+| o o.+o . ooo. o |
+|     ..... .**oo.|
+|       o  o+*B+.o|
+|        S  ==+.. |
+|          . o..  |
+|           o o   |
+|        . + o    |
+|       ..+.E     |
++----[SHA256]-----+
+```
+
+Копируем открытый ключ на удаленный сервер SSH:
+```shell
+vagrant@vagrant:~/testssl.sh$ ssh-copy-id anatol@192.168.0.104
+/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/home/vagrant/.ssh/id_rsa.pub"
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+anatol@192.168.0.104's password:
+
+Number of key(s) added: 1
+
+Now try logging into the machine, with:   "ssh 'anatol@192.168.0.104'"
+and check to make sure that only the key(s) you wanted were added.
+```
+
+Входим на удаленный сервер по ключу:
+```shell
+vagrant@vagrant:~/testssl.sh$ ssh anatol@192.168.0.104
+Welcome to Ubuntu 20.04.1 LTS (GNU/Linux 4.4.0-19041-Microsoft x86_64)
+```
+
 6. Переименуйте файлы ключей из задания 5. Настройте файл конфигурации SSH клиента, так чтобы вход на удаленный сервер осуществлялся по имени сервера.
 
 **Ответ:**
+
+Переименовываем файл закрытого ключа:
+```shell
+vagrant@vagrant:~/.ssh$ cd ~/.ssh/
+vagrant@vagrant:~/.ssh$ mv id_rsa id_rsa_1
+```
+
+Создаем файл конфигурации:
+```shell
+vagrant@vagrant:~/.ssh$ touch config
+vagrant@vagrant:~/.ssh$ chmod 600 config
+```
+Прописываем следующие настройки в файле:
+```shell
+vagrant@vagrant:~/.ssh$ vim config
+
+Host my_server
+        HostName 192.168.0.104
+        IdentityFile ~/.ssh/id_rsa_1
+        User anatol
+```
+После этого можно заходить на удаленный сервер при помощи команды:
+```shell
+vagrant@vagrant:~/.ssh$ ssh my_server
+Welcome to Ubuntu 20.04.1 LTS (GNU/Linux 4.4.0-19041-Microsoft x86_64)
+```
 
 7. Соберите дамп трафика утилитой tcpdump в формате pcap, 100 пакетов. Откройте файл pcap в Wireshark.
 
 **Ответ:**
 
+Собираем 100 пакетов:
+```shell
+root@vagrant:~# tcpdump -i eth0 -c 100 -w dump.pcap
+tcpdump: listening on eth0, link-type EN10MB (Ethernet), capture size 262144 bytes
+100 packets captured
+114 packets received by filter
+0 packets dropped by kernel
+```
+
+Открываем файл dump.pcap в Wireshark:
+
+![alt_text](https://github.com/avloton/devops-netology/raw/main/img/wireshark.png)
