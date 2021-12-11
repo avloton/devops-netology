@@ -1692,3 +1692,95 @@ UNCONN            0                 0                                   127.0.0.
 **Ответ:**
 
 ![alt_text](https://github.com/avloton/devops-netology/raw/main/img/network.png)
+
+## Домашнее задание к занятию "3.9. Элементы безопасности информационных систем"
+
+1. Установите Bitwarden плагин для браузера. Зарегистрируйтесь и сохраните несколько паролей.
+
+**Ответ:**
+
+2. Установите Google authenticator на мобильный телефон. Настройте вход в Bitwarden акаунт через Google authenticator OTP.
+
+**Ответ:**
+
+3. Установите apache2, сгенерируйте самоподписанный сертификат, настройте тестовый сайт для работы по HTTPS.
+
+**Ответ:**
+
+Устанавливаем apache:
+```shell
+root@vagrant:/etc/apache2# apt install apache2
+```
+
+Генерируем закрытый ключ и самоподписанный сертификат:
+```shell
+root@vagrant:/etc/apache2# openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt -subj "/C=RU/ST=Moscow/L=Moscow/O=Company
+ Name/OU=Org/CN=www.example.com"
+Generating a RSA private key
+.............................................................................................................+++++
+.........................................+++++
+writing new private key to '/etc/ssl/private/apache-selfsigned.key'
+-----
+```
+Подключаем необходимые модули в apache:
+```shell
+root@vagrant:/etc/apache2# a2enmod rewrite
+root@vagrant:/etc/apache2# a2enmod ssl
+root@vagrant:/etc/apache2# a2enmod headers
+root@vagrant:/etc/apache2# systemctl restart apache2
+```
+Прописываем конфигурацию для SSL (основа взята с ресурса https://ssl-config.mozilla.org/):
+```shell
+root@vagrant:/etc/apache2# vim /etc/apache2/sites-available/self-signed-ssl.conf
+
+<VirtualHost *:80>
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} !^/\.well\-known/acme\-challenge/
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}$1 [R=301,L]
+</VirtualHost>
+
+<VirtualHost *:443>
+    SSLEngine on
+    ServerName localhost
+    DocumentRoot /var/www/html
+    # curl https://ssl-config.mozilla.org/ffdhe2048.txt >> /path/to/signed_cert_and_intermediate_certs_and_dhparams
+    SSLCertificateFile      /etc/ssl/certs/apache-selfsigned.crt
+    SSLCertificateKeyFile   /etc/ssl/private/apache-selfsigned.key
+
+    # enable HTTP/2, if available
+    Protocols h2 http/1.1
+
+    # HTTP Strict Transport Security (mod_headers is required) (63072000 seconds)
+    Header always set Strict-Transport-Security "max-age=63072000"
+</VirtualHost>
+
+# intermediate configuration
+SSLProtocol             all -SSLv3 -TLSv1 -TLSv1.1
+SSLCipherSuite          ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+SSLHonorCipherOrder     off
+SSLSessionTickets       off
+```
+Включаем новую конфигурацию, отключаем старую, проверяем конфиг:
+```shell
+root@vagrant:/etc/apache2# a2ensite self-signed-ssl.conf 
+root@vagrant:/etc/apache2# a2dissite 000-default.conf
+root@vagrant:/etc/apache2# apache2ctl configtest
+root@vagrant:/etc/apache2# systemctl reload apache2
+```
+
+4. Проверьте на TLS уязвимости произвольный сайт в интернете (кроме сайтов МВД, ФСБ, МинОбр, НацБанк, РосКосмос, РосАтом, РосНАНО и любых госкомпаний, объектов КИИ, ВПК ... и тому подобное).
+
+**Ответ:**
+
+5. Установите на Ubuntu ssh сервер, сгенерируйте новый приватный ключ. Скопируйте свой публичный ключ на другой сервер. Подключитесь к серверу по SSH-ключу.
+ 
+**Ответ:**
+
+6. Переименуйте файлы ключей из задания 5. Настройте файл конфигурации SSH клиента, так чтобы вход на удаленный сервер осуществлялся по имени сервера.
+
+**Ответ:**
+
+7. Соберите дамп трафика утилитой tcpdump в формате pcap, 100 пакетов. Откройте файл pcap в Wireshark.
+
+**Ответ:**
+
