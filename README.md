@@ -2183,3 +2183,124 @@ http://google.com - 74.125.131.138
 [ERROR] http://google.com IP mismatch: 74.125.131.100 74.125.131.138
 http://drive.google.com - 74.125.205.194
 ```
+
+# Домашнее задание к занятию "4.3. Языки разметки JSON и YAML"
+
+## Обязательная задача 1
+Мы выгрузили JSON, который получили через API запрос к нашему сервису:
+```
+    { "info" : "Sample JSON output from our service\t",
+        "elements" :[
+            { "name" : "first",
+            "type" : "server",
+            "ip" : 7175 
+            }
+            { "name" : "second",
+            "type" : "proxy",
+            "ip : 71.78.22.43
+            }
+        ]
+    }
+```
+  Нужно найти и исправить все ошибки, которые допускает наш сервис
+
+**Ответ:**
+```json
+    { "info" : "Sample JSON output from our service\t",
+        "elements" :
+        [
+           {
+              "name" : "first",
+              "type" : "server",
+              "ip" : 7175 
+           },
+           { 
+              "name" : "second",
+              "type" : "proxy",
+              "ip" : "71.78.22.43"
+           }
+        ]
+    }
+```
+
+## Обязательная задача 2
+В прошлый рабочий день мы создавали скрипт, позволяющий опрашивать веб-сервисы и получать их IP. К уже реализованному функционалу нам нужно добавить возможность записи JSON и YAML файлов, описывающих наши сервисы. Формат записи JSON по одному сервису: `{ "имя сервиса" : "его IP"}`. Формат записи YAML по одному сервису: `- имя сервиса: его IP`. Если в момент исполнения скрипта меняется IP у сервиса - он должен так же поменяться в yml и json файле.
+
+### Ваш скрипт:
+```python
+#!/usr/bin/env python3
+
+import json
+import socket
+import time
+import yaml
+
+dns_names = {'drive.google.com': '', 'mail.google.com': '', 'google.com': ''}
+
+while True:
+
+    print('---------------')
+
+    services = {'services': []}
+
+    for dns_name, old_ip in dns_names.items():
+        time.sleep(1)
+        new_ip = socket.gethostbyname(dns_name)
+        print('http://' + dns_name + ' - ' + new_ip)
+        dns_names[dns_name] = new_ip
+
+        if len(old_ip) == 0:
+            continue
+        elif old_ip != new_ip:
+            print('[ERROR] http://' + dns_name + ' IP mismatch: ' + old_ip + ' ' + new_ip)
+
+        services['services'].append({dns_name: new_ip})
+
+    with open('dns_names.json', 'w') as jsfile:
+        json.dump(services, jsfile)
+
+    with open('dns_names.yml', 'w') as ymlfile:
+        yaml.dump(services, ymlfile)
+
+```
+
+### Вывод скрипта при запуске при тестировании:
+```
+anatol@WIN-QLVHA9MV1CM:/mnt/c/Users/Anatol/devops-netology/hw/hw_4.3$ ./2.py
+---------------
+http://drive.google.com - 173.194.220.194
+http://mail.google.com - 64.233.162.83
+http://google.com - 64.233.164.100
+---------------
+http://drive.google.com - 173.194.220.194
+http://mail.google.com - 64.233.162.19
+[ERROR] http://mail.google.com IP mismatch: 64.233.162.83 64.233.162.19
+http://google.com - 64.233.164.113
+[ERROR] http://google.com IP mismatch: 64.233.164.100 64.233.164.113
+---------------
+http://drive.google.com - 173.194.220.194
+http://mail.google.com - 64.233.162.83
+[ERROR] http://mail.google.com IP mismatch: 64.233.162.19 64.233.162.83
+http://google.com - 64.233.164.100
+[ERROR] http://google.com IP mismatch: 64.233.164.113 64.233.164.100
+---------------
+http://drive.google.com - 173.194.220.194
+http://mail.google.com - 64.233.162.19
+[ERROR] http://mail.google.com IP mismatch: 64.233.162.83 64.233.162.19
+http://google.com - 64.233.164.138
+[ERROR] http://google.com IP mismatch: 64.233.164.100 64.233.164.138
+```
+
+### json-файл(ы), который(е) записал ваш скрипт:
+```json
+{"services": [{"drive.google.com": "173.194.220.194"}, {"mail.google.com": "64.233.162.17"}, {"google.com": "64.233.164.101"}]}
+```
+
+### yml-файл(ы), который(е) записал ваш скрипт:
+```yaml
+services:
+- drive.google.com: 173.194.220.194
+- mail.google.com: 64.233.162.17
+- google.com: 64.233.164.101
+
+```
