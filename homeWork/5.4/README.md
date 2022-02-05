@@ -6,10 +6,11 @@
 
 Создать собственный образ операционной системы с помощью Packer.
 
-![alt_text](https://github.com/avloton/devops-netology/raw/main/homeWork/5.4/img/packer_2.png)
+![alt_text](https://github.com/avloton/devops-netology/raw/main/homeWork/5.4/img/packer_console_3.png)
 
 ![alt_text](https://github.com/avloton/devops-netology/raw/main/homeWork/5.4/img/packer_console_2.png)
 
+![alt_text](https://github.com/avloton/devops-netology/raw/main/homeWork/5.4/img/packer_2.png)
 
 ## Задача 2
 
