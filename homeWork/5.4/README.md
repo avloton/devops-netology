@@ -6,22 +6,22 @@
 
 Создать собственный образ операционной системы с помощью Packer.
 
-![alt_text](https://github.com/avloton/devops-netology/raw/main/homeWork/5.4/img/packer.png)
+![alt_text](https://github.com/avloton/devops-netology/raw/main/homeWork/5.4/img/packer_2.png)
 
-![alt_text](https://github.com/avloton/devops-netology/raw/main/homeWork/5.4/img/packer_console.png)
+![alt_text](https://github.com/avloton/devops-netology/raw/main/homeWork/5.4/img/packer_console_2.png)
 
 
 ## Задача 2
 
 Создать вашу первую виртуальную машину в Яндекс.Облаке.
 
-![alt_text](https://github.com/avloton/devops-netology/raw/main/homeWork/5.4/img/terraform_node01.png)
+![alt_text](https://github.com/avloton/devops-netology/raw/main/homeWork/5.4/img/terraform_node01_2.png)
 
 ## Задача 3
 
 Создать ваш первый готовый к боевой эксплуатации компонент мониторинга, состоящий из стека микросервисов.
 
-![alt_text](https://github.com/avloton/devops-netology/raw/main/homeWork/5.4/img/grafana.png)
+![alt_text](https://github.com/avloton/devops-netology/raw/main/homeWork/5.4/img/grafana_2.png)
 
 ## Задача 4 (*)
 
