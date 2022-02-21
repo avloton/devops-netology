@@ -269,12 +269,12 @@ docker exec -it 62_postgres_1 bash -c "pg_dump test_db -Fc -U postgres -h localh
 ```
 Остановка старого контейнера с БД:
 ```shell
-vagrant@server1:/vagrant/hw/6.2$ docker stop 62_postgres_1
+docker stop 62_postgres_1
 ```
 Запуск нового контейнера с БД и подключение volume, в котором лежит бэкап:
 ```shell
 
-vagrant@server1:/vagrant/hw/6.2$ docker run -d --rm --name postgres -p 5432:5432 -v 62_backup-volume:/var/lib/postgresql/backup -e POSTGRES_PASSWORD=secret postgres:12
+docker run -d --rm --name postgres -p 5432:5432 -v 62_backup-volume:/var/lib/postgresql/backup -e POSTGRES_PASSWORD=secret postgres:12
 ```
 Восстановление test_db из бэкапа:
 ```shell
