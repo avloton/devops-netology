@@ -23,8 +23,10 @@ provider "yandex" {
 }
 
 resource "yandex_compute_instance" "vm-1" {
+
   name = "terraform1"
   count = local.count_map[terraform.workspace]
+
   resources {
     cores  = local.core_map[terraform.workspace]
     memory = local.memory_map[terraform.workspace]
@@ -41,12 +43,35 @@ resource "yandex_compute_instance" "vm-1" {
   metadata = {
     ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
   }
-
   lifecycle {
     create_before_destroy = true
-
   }
+}
 
+resource "yandex_compute_instance" "vm-2" {
+
+  for_each = local.names
+  name = "terraform2-${each.key}"
+
+  resources {
+    cores  = local.core_map[terraform.workspace]
+    memory = local.memory_map[terraform.workspace]
+  }
+  boot_disk {
+    initialize_params {
+      image_id = "fd807ed79a4kkqfvd1mb"
+    }
+  }
+  network_interface {
+    subnet_id = yandex_vpc_subnet.subnet-1.id
+    nat       = true
+  }
+  metadata = {
+    ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 locals {
@@ -62,6 +87,10 @@ locals {
     stage = 1
     prod = 2
   }
+  names = toset([
+    "Server-1",
+    "Server-2"
+  ])
 }
 
 resource "yandex_vpc_network" "network-1" {
