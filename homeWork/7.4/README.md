@@ -38,6 +38,7 @@
 **Ответ:**
 
 https://github.com/avloton/devops-netology/blob/main/homeWork/7.4/src/docker/atlantis/server.yaml
+
 https://github.com/avloton/devops-netology/blob/main/homeWork/7.4/src/docker/atlantis/atlantis.yaml
 
 ## Задача 3. Знакомство с каталогом модулей. 
