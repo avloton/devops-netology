@@ -15,6 +15,7 @@
 В качестве результата задания приложите снимок экрана с успешным применением конфигурации.
 
 **Ответ:**
+![alt_text](https://github.com/avloton/devops-netology/raw/main/homeWork/7.4/img/terraform-cloud.png)
 
 ## Задача 2. Написать серверный конфиг для атлантиса. 
 
@@ -33,6 +34,11 @@
 1. Необходимо включить автопланирование при изменении любых файлов `*.tf`.
 
 В качестве результата приложите ссылку на файлы `server.yaml` и `atlantis.yaml`.
+
+**Ответ:**
+
+https://github.com/avloton/devops-netology/blob/main/homeWork/7.4/src/docker/atlantis/server.yaml
+https://github.com/avloton/devops-netology/blob/main/homeWork/7.4/src/docker/atlantis/atlantis.yaml
 
 ## Задача 3. Знакомство с каталогом модулей. 
 
