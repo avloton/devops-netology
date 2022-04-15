@@ -1,0 +1,12 @@
+---
+services:
+  atlantis:
+    image: ghcr.io/runatlantis/atlantis:v0.19.2
+    container_name: atlantis
+    network_mode: host
+    environment:
+      YC_TOKEN:
+    volumes:
+      - ./server.yaml:/opt/server.yaml
+    restart: unless-stopped
+    command: ["atlantis", "server", "--atlantis-url=$ATLANTIS_URL", "--gh-user=$GH_USER", "--gh-token=$GH_TOKEN", "--gh-webhook-secret=$GH_WEBHOOK_SECRET", "--repo-allowlist=$REPO_ALLOWLIST", "--repo-config=$REPO_CONFIG"]

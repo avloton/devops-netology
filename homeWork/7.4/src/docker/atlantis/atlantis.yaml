@@ -1,0 +1,29 @@
+version: 3
+projects:
+- name: stage
+  dir: .
+  workspace: stage
+  autoplan:
+    when_modified: ["*.tf"]
+    enabled: true
+  workflow: myworkflow
+
+- name: prod
+  dir: .
+  workspace: prod
+  autoplan:
+    when_modified: ["*.tf"]
+    enabled: true
+  workflow: myworkflow
+
+workflows:
+  myworkflow:
+    plan:
+      steps:
+      - run: echo "hello from atlantis.yaml"
+      - init
+      - plan:
+          extra_args: ["-lock=false"]
+    apply:
+      steps:
+      - apply
