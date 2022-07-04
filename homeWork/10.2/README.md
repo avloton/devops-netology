@@ -101,6 +101,9 @@ Request-Id: 9235c429-fa39-11ec-8039-000000000000
 X-Kapacitor-Version: 1.6.4
 Date: Sat, 02 Jul 2022 19:02:51 GMT
 ```
+
+![](https://github.com/avloton/devops-netology/blob/main/homeWork/10.2/img/002038.png?raw=true)
+
 ---
 
 4. Перейдите в веб-интерфейс Chronograf (`http://localhost:8888`) и откройте вкладку `Data explorer`.
@@ -116,6 +119,8 @@ Date: Sat, 02 Jul 2022 19:02:51 GMT
 (disk->host->telegraf_container_id) из веб-интерфейса.
 
 #### Ответ
+
+![](https://github.com/avloton/devops-netology/blob/main/homeWork/10.2/img/024848.png.png?raw=true)
 
 ---
 
@@ -147,6 +152,8 @@ Date: Sat, 02 Jul 2022 19:02:51 GMT
 веб-интерфейсе базы telegraf.autogen . Там должны появиться метрики, связанные с docker.
 
 #### Ответ
+
+![](https://github.com/avloton/devops-netology/blob/main/homeWork/10.2/img/025129.png.png?raw=true)
 
 Факультативно можете изучить какие метрики собирает telegraf после выполнения данного задания.
 
