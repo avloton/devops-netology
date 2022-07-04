@@ -120,7 +120,7 @@ Date: Sat, 02 Jul 2022 19:02:51 GMT
 
 #### Ответ
 
-![](https://github.com/avloton/devops-netology/blob/main/homeWork/10.2/img/024848.png.png?raw=true)
+![](https://github.com/avloton/devops-netology/blob/main/homeWork/10.2/img/024848.png?raw=true)
 
 ---
 
@@ -153,7 +153,7 @@ Date: Sat, 02 Jul 2022 19:02:51 GMT
 
 #### Ответ
 
-![](https://github.com/avloton/devops-netology/blob/main/homeWork/10.2/img/025129.png.png?raw=true)
+![](https://github.com/avloton/devops-netology/blob/main/homeWork/10.2/img/025129.png?raw=true)
 
 Факультативно можете изучить какие метрики собирает telegraf после выполнения данного задания.
 
