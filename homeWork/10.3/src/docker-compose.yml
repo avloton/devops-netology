@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+
+  grafana:
+    image: grafana/grafana-oss:9.0.2
+    container_name: grafana
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    network_mode: host
+    expose:
+      - 3000
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.36.2
+    container_name: prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus:ro
+      - prometheus-storage:/prometheus
+    network_mode: host
+    expose:
+      - 9090
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:v0.24.0
+    container_name: alertmanager
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    network_mode: host
+    restart: unless-stopped
+    expose:
+      - 9093
+
+volumes:
+  grafana-storage: {}
+  prometheus-storage: {}
+

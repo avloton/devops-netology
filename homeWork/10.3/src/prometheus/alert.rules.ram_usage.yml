@@ -1,0 +1,11 @@
+groups:
+- name: alert.rules.ram_usage
+  rules:
+  - alert: Not enough free RAM
+    expr: node_memory_MemFree_bytes{instance="localhost:9100"}/(1024*1024) < 500
+    for: 10s
+    labels:
+      severity: critical
+    annotations:
+      description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute.'
+      summary: 'Instance {{ $labels.instance }} down.'
